@@ -1,45 +1,12 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
-
-interface CharacterOrigin {
-  name: string;
-  url: string;
-}
-
-interface CharacterLocation {
-  name: string;
-  url: string;
-}
-
-interface ApiInfoResponse {
-  count: number;
-  pages: number;
-  next: string;
-  prev?: string;
-}
-
-interface Character {
-  id: number;
-  name: string;
-  status: string;
-  species: string;
-  type: string;
-  gender: string;
-  origin: CharacterOrigin;
-  location: CharacterLocation;
-  image: string;
-  episode: string[];
-  url: string;
-  created: string;
-}
-
-interface RickAndMortyResponse {
-  info: ApiInfoResponse;
-  results: Character[];
-}
+import CharacterCard from "../components/CharacterCard.tsx";
+import { Character, RickAndMortyResponse } from "../types/index.ts";
 
 export const handler: Handlers<RickAndMortyResponse | null> = {
   async GET(_, ctx) {
-    const res = await fetch("https://rickandmortyapi.com/api/character");
+    const res = await fetch(
+      "https://rickandmortyapi.com/api/character",
+    );
 
     if (res.status === 404) {
       return ctx.render(null);
@@ -52,40 +19,22 @@ export const handler: Handlers<RickAndMortyResponse | null> = {
 };
 
 export default function Home({ data }: PageProps<RickAndMortyResponse | null>) {
-  const characterList = data?.results.map((character, index) => {
-    return (
-      <li class="flex justify-between gap-x-6 py-5">
-        <div class="flex min-w-0 gap-x-4">
-          <img
-            class="h-12 w-12 flex-none rounded-full bg-gray-50"
-            src={character.image}
-            alt=""
-          />
-          <div class="min-w-0 flex-auto">
-            <p class="text-sm font-semibold leading-6 text-gray-900">
-              {character.name}
-            </p>
-            <p class="mt-1 truncate text-xs leading-5 text-gray-500">
-              {character.species}
-            </p>
-          </div>
-        </div>
-        <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-          <p class="text-sm leading-6 text-gray-900">
-            {character.location.name}
-          </p>
-          <p class="mt-1 text-xs leading-5 text-gray-500">
-            {character.origin.name}
-          </p>
-        </div>
-      </li>
-    );
-  });
   return (
-    <div class="flex items-center justify-center w-full h-full">
-      <ul role="list" class="divide-y divide-gray-100">
-        {characterList}
-      </ul>
+    <div className="bg-white">
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+        <h1 className="text-1xl font-bold tracking-tight text-gray-900">
+          Rick and Morty
+        </h1>
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+          List Character
+        </h2>
+
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          {data?.results.map((character: Character) => (
+            <CharacterCard key={character.id} character={character} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
